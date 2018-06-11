@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">Common</string>
+    <!--Image 相关-->
+    <string name="demo_image">ImageUtils Demo</string>
+    <string name="image_src">从资源中获取</string>
+    <string name="image_add_color">添加颜色</string>
+    <string name="image_scale">缩放</string>
+    <string name="image_clip">修剪</string>
+    <string name="image_skew">倾斜</string>
+    <string name="image_rotate">旋转</string>
+    <string name="image_to_round">裁剪成圆</string>
+    <string name="image_to_round_border">裁剪成圆并添加边框</string>
+    <string name="image_to_round_corner">裁剪成圆角</string>
+    <string name="image_to_round_corner_border">裁剪成圆角添加边框</string>
+    <string name="image_add_corner_border">添加边框</string>
+    <string name="image_add_circle_border">添加圆形边框</string>
+    <string name="image_add_reflection">添加镜子效果</string>
+    <string name="image_add_text_watermark">添加水印</string>
+    <string name="image_add_image_watermark">添加图片</string>
+    <string name="image_to_gray">转换成灰色</string>
+    <string name="image_fast_blur">快速模糊</string>
+    <string name="image_render_script_blur">渲染脚本模糊</string>
+    <string name="image_stack_blur">堆叠模糊</string>
+    <string name="image_save">保存</string>
+    <string name="image_compress_by_scale">按比例压缩</string>
+    <string name="image_compress_by_quality_half">按质量压缩一半</string>
+    <string name="image_compress_by_quality_max_size">按质量最大尺寸压缩</string>
+    <string name="image_compress_by_sample_size">按simpleSize大小压缩</string>
+</resources>

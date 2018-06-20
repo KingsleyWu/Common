@@ -28,5 +28,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'com.r0adkll:slidableactivity:2.0.5'
     implementation 'com.android.support:design:27.1.1'
-    implementation 'common:common-util-lib:1.0.0'
+    //implementation 'common:common-util-lib:1.0.5.4'
+    implementation project(':common')
 }

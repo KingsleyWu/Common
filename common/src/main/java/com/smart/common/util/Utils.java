@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.smart.common.util;
 
@@ -29,11 +29,14 @@ import java.text.DecimalFormat;
 
 public class Utils {
 
-    /** 时间服务器的域名 */
+    /**
+     * 时间服务器的域名
+     */
     private static String[] sNtpServers = {"ntp.sjtu.edu.cn", "hk.pool.ntp.org"};
-    
+
     /**
      * 关闭流
+     *
      * @param closeable 流
      */
     public static void close(Closeable closeable) {
@@ -48,6 +51,7 @@ public class Utils {
 
     /**
      * 执行命令
+     *
      * @param commond 命令
      * @return
      */
@@ -62,15 +66,16 @@ public class Utils {
         DebugUtil.i("exec Runtime commond:" + commond + ", Process:" + p);
         return p;
     }
-    
-    /** 
-    * 清除应用缓存的用户数据，同时停止所有服务和Alarm定时task 
-    * String cmd = "pm clear " + packageName; 
-    * String cmd = "pm clear " + packageName  + " HERE"; 
-    * Runtime.getRuntime().exec(cmd) 
-    * @param packageName 
-    * @return 
-    */
+
+    /**
+     * 清除应用缓存的用户数据，同时停止所有服务和Alarm定时task
+     * String cmd = "pm clear " + packageName;
+     * String cmd = "pm clear " + packageName  + " HERE";
+     * Runtime.getRuntime().exec(cmd)
+     *
+     * @param packageName
+     * @return
+     */
     public static Process clearAppUserData(String packageName) {
         Process p = execRuntimeProcess("pm clear " + packageName);
         if (p == null) {
@@ -80,9 +85,10 @@ public class Utils {
         }
         return p;
     }
-    
+
     /**
-     *  获取转换文件大小单位后的值
+     * 获取转换文件大小单位后的值
+     *
      * @param fileSize
      * @return
      */
@@ -93,19 +99,20 @@ public class Utils {
         if (fileSize == 0) {
             fileSizeString = "0";
         } else if (fileSize < 1024) {
-            fileSizeString = ""+fileSize;
+            fileSizeString = "" + fileSize;
         } else if (fileSize < 1048576) {
-            fileSizeString = ""+fileSize / 1024;
+            fileSizeString = "" + fileSize / 1024;
         } else if (fileSize < 1073741824) {
-            fileSizeString = df.format((double)fileSize / 1048576);
+            fileSizeString = df.format((double) fileSize / 1048576);
         } else {
-            fileSizeString = df.format((double)fileSize / 1073741824);
+            fileSizeString = df.format((double) fileSize / 1073741824);
         }
         return fileSizeString;
     }
-    
+
     /**
      * 获取文件大小单位
+     *
      * @param fileSize
      * @return 返回 KB/S  B/s MB/S G/S
      */
@@ -126,20 +133,30 @@ public class Utils {
 
     /**
      * 初始化log
-     * @param isNeedLog context
+     *
+     * @param isNeedLog 是否需要Debug log
      */
-    public static void openDebug(boolean isNeedLog){
+    public static void openDebug(boolean isNeedLog) {
         DebugUtil.sOpenDebug = isNeedLog;
     }
 
+    /**
+     * 初始化写log
+     *
+     * @param isNeedLog 是否需要写Debug log
+     */
+    public static void openSmartLog(boolean isNeedLog) {
+        SmartLog.sLogState = isNeedLog;
+    }
 
     /**
      * 是否有网络连接
+     *
      * @param context context
      * @return 有网络返回true 否则返回false
      */
     public static boolean isNetConnected(Context context) {
-        ConnectivityManager connectivity = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connectivity = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connectivity != null) {
             NetworkInfo[] networkInfos = connectivity.getAllNetworkInfo();
             if (networkInfos != null) {
@@ -156,30 +173,33 @@ public class Utils {
 
     /**
      * 是否是WIFI连接
+     *
      * @param context context
      * @return 是返回true 否则返回false
      */
     public static boolean isConnectedToWifi(Context context) {
-        return isConnectedToNetByType(context,  ConnectivityManager.TYPE_WIFI);
+        return isConnectedToNetByType(context, ConnectivityManager.TYPE_WIFI);
     }
 
     /**
      * 是否是以太网连接
+     *
      * @param context context
      * @return 是返回true 否则返回false
      */
     public static boolean isConnectedToEthernet(Context context) {
-        return isConnectedToNetByType(context,  ConnectivityManager.TYPE_ETHERNET);
+        return isConnectedToNetByType(context, ConnectivityManager.TYPE_ETHERNET);
     }
 
     /**
      * 查询网络连接方式是否为type连接方式
+     *
      * @param context context
-     * @param type ConnectivityManager.TYPE_？
+     * @param type    ConnectivityManager.TYPE_？
      * @return 是返回true 否则返回false
      */
     public static boolean isConnectedToNetByType(Context context, int type) {
-        ConnectivityManager connectivity = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connectivity = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connectivity != null) {
             NetworkInfo[] networkInfos = connectivity.getAllNetworkInfo();
             if (networkInfos != null) {
@@ -196,7 +216,8 @@ public class Utils {
 
     /**
      * 安装apk
-     * @param context context
+     *
+     * @param context  context
      * @param fileName fileName
      */
     public static void installApplication(Context context, String fileName) {
@@ -291,24 +312,17 @@ public class Utils {
     }
 
 
-    private static Application sApplication;
+    private static Context sApplication;
 
     /**
      * 初始化 utils.
      *
      * @param context context
      */
-    public static void init(@NonNull final Context context) {
-        init((Application) context.getApplicationContext());
-    }
-
-    /**
-     * 初始化 utils.
-     *
-     * @param app application
-     */
-    public static void init(@NonNull final Application app) {
-        Utils.sApplication = app;
+    public static void init(@NonNull Context context) {
+        Utils.sApplication = context.getApplicationContext();
+        SharedPreferenceUtil.init(context);
+        SmartLog.startLog(context);
     }
 
     /**
@@ -318,7 +332,7 @@ public class Utils {
      */
     public static Application getApplication() {
         if (sApplication != null) {
-            return sApplication;
+            return (Application) sApplication;
         }
         try {
             @SuppressLint("PrivateApi")
@@ -329,7 +343,7 @@ public class Utils {
                 throw new NullPointerException("u should init first");
             }
             init((Application) app);
-            return sApplication;
+            return (Application) sApplication;
         } catch (NoSuchMethodException | IllegalAccessException
                 | InvocationTargetException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -339,6 +353,7 @@ public class Utils {
 
     /**
      * 是否有SD卡
+     *
      * @return 有则返回true 否则false
      */
     private static boolean existSDCard() {
@@ -352,6 +367,7 @@ public class Utils {
 
     /**
      * 获取cache文件夹路径
+     *
      * @return cache文件夹路径
      */
     public static String getAppCacheDir() {
@@ -361,25 +377,30 @@ public class Utils {
 
     /**
      * 获取网络缓存文件夹路径
+     *
      * @return 网络缓存文件夹路径
      */
-    public static String getAppNetCache(){
-        if (sCacheDir == null){
-            throw new RuntimeException("u should init first");
+    public static String getAppNetCache() {
+        if (sCacheDir == null) {
+            getAppCacheDir();
         }
         return sCacheDir + File.separator + "NetCache";
     }
 
     private static void initCacheDir() {
+        if (sApplication == null) {
+            sApplication = getApplication();
+        }
         if (sApplication != null) {
             if (sApplication.getExternalCacheDir() != null && existSDCard()) {
                 sCacheDir = sApplication.getExternalCacheDir().toString();
             } else {
                 sCacheDir = sApplication.getCacheDir().toString();
             }
-        }else {
+        } else {
             throw new IllegalArgumentException("u should init first");
         }
+
     }
-    
+
 }

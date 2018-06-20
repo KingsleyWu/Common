@@ -9,87 +9,163 @@ import com.smart.common.data.DataFormat;
  */
 public class DebugUtil {
 
-    /** 标识是否需要打印log */
+    /**
+     * 标识是否需要打印log
+     */
     public static boolean sOpenDebug = true;
 
-    /** 调用的类名 */
+    /**
+     * 标识是否需要打印log
+     */
+    public static String sDebugAppName = "Debug";
+
+    /**
+     * 调用的类名
+     */
     private static String sClassName;
 
-    /** 调用的方法名 */
+    /**
+     * 调用的方法名
+     */
     private static String sMethodName;
 
-    /** 调用的行号 */
+    /**
+     * 调用的行号
+     */
     private static int sLineNumber;
 
     /**
      * 用类名作为tag打印debug日志
+     *
      * @param message 日志内容
      */
     public static void d(String message) {
-        getsMethodNames(new Throwable().getStackTrace());
-        if (sOpenDebug && !DataFormat.isEmpty(message)) {
+        if (sOpenDebug) {
+            getsMethodNames(new Throwable().getStackTrace());
             Log.d(sClassName, createLog(message));
+            SmartLog.logInfo(sClassName, createLog(message));
         }
-        SmartLog.logInfo(sClassName, createLog(message));
     }
 
     /**
      * 打印debug信息
-     * @param tag tag
+     *
+     * @param tag     tag
      * @param message 日志内容
      */
     public static void d(String tag, String message) {
-        if (sOpenDebug && !DataFormat.isEmpty(message)) {
+        if (sOpenDebug) {
             getsMethodNames(new Throwable().getStackTrace());
             Log.d(tag, createLog(message));
+            SmartLog.logInfo(sClassName, createLog(message));
+        }
+    }
+
+    /**
+     * 用类名作为tag打印debug日志
+     *
+     * @param object 日志内容
+     */
+    public static void d(Object object) {
+        if (sOpenDebug) {
+            getsMethodNames(new Throwable().getStackTrace());
+            if (!DataFormat.isEmpty(object)) {
+                Log.d(sClassName, createLog(object.toString()));
+                SmartLog.logInfo(sClassName, createLog(object.toString()));
+            } else {
+                Log.d(sClassName, createLog(object));
+                SmartLog.logInfo(sClassName, createLog(object));
+            }
         }
     }
 
     /**
      * 用类名作为tag打印info日志
+     *
      * @param message 日志内容
      */
     public static void i(String message) {
-        getsMethodNames(new Throwable().getStackTrace());
-        if (sOpenDebug && !DataFormat.isEmpty(message)) {
+        if (sOpenDebug) {
+            getsMethodNames(new Throwable().getStackTrace());
             Log.i(sClassName, createLog(message));
+            SmartLog.logInfo(sClassName, createLog(message));
         }
-        SmartLog.logInfo(sClassName, createLog(message));
     }
 
     /**
      * 打印info信息
-     * @param tag tag
+     *
+     * @param tag     tag
      * @param message 日志内容
      */
     public static void i(String tag, String message) {
-        if (sOpenDebug && !DataFormat.isEmpty(message)) {
+        if (sOpenDebug) {
             getsMethodNames(new Throwable().getStackTrace());
             Log.i(tag, createLog(message));
+            SmartLog.logInfo(sClassName, createLog(message));
+        }
+    }
+
+    /**
+     * 用类名作为tag打印debug日志
+     *
+     * @param object 日志内容
+     */
+    public static void i(Object object) {
+        if (sOpenDebug) {
+            if (!DataFormat.isEmpty(object)) {
+                getsMethodNames(new Throwable().getStackTrace());
+                Log.i(sClassName, createLog(object.toString()));
+                SmartLog.logInfo(sClassName, createLog(object.toString()));
+            } else {
+                Log.i(sClassName, createLog(object));
+                SmartLog.logInfo(sClassName, createLog(object));
+            }
         }
     }
 
     /**
      * 用类名作为tag打印error日志
+     *
      * @param message 日志内容
      */
     public static void e(String message) {
-        if (sOpenDebug && !DataFormat.isEmpty(message)) {
+        if (sOpenDebug) {
             getsMethodNames(new Throwable().getStackTrace());
             Log.e(sClassName, createLog(message));
+            SmartLog.logError(sClassName, createLog(message));
         }
-        SmartLog.logError(sClassName, createLog(message));
     }
 
     /**
      * 打印error信息
-     * @param tag tag
+     *
+     * @param tag     tag
      * @param message 日志内容
      */
     public static void e(String tag, String message) {
-        if (sOpenDebug && !DataFormat.isEmpty(message)) {
+        if (sOpenDebug) {
             getsMethodNames(new Throwable().getStackTrace());
             Log.e(tag, createLog(message));
+            SmartLog.logError(sClassName, createLog(message));
+        }
+    }
+
+    /**
+     * 用类名作为tag打印error日志
+     *
+     * @param object 日志内容
+     */
+    public static void e(Object object) {
+        if (sOpenDebug) {
+            getsMethodNames(new Throwable().getStackTrace());
+            if (!DataFormat.isEmpty(object)) {
+                Log.e(sClassName, createLog(object.toString()));
+                SmartLog.logError(sClassName, createLog(object.toString()));
+            } else {
+                Log.e(sClassName, createLog(object));
+                SmartLog.logError(sClassName, createLog(object));
+            }
         }
     }
 
@@ -99,12 +175,12 @@ public class DebugUtil {
         sLineNumber = sElements[1].getLineNumber();
     }
 
-    private static String createLog(String log) {
-        return "Debug [" +
+    private static String createLog(Object obj) {
+        return sDebugAppName + "[" +
                 sMethodName +
                 ":" +
                 sLineNumber +
                 "] " +
-                log;
+                obj;
     }
 }

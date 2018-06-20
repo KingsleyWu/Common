@@ -12,6 +12,9 @@ public class DebugUtil {
     /** 标识是否需要打印log */
     public static boolean sOpenDebug = true;
 
+    /** 标识是否需要打印log */
+    public static String sDebugAppName = "Debug";
+
     /** 调用的类名 */
     private static String sClassName;
 
@@ -100,7 +103,7 @@ public class DebugUtil {
     }
 
     private static String createLog(String log) {
-        return "Debug [" +
+        return sDebugAppName + "[" +
                 sMethodName +
                 ":" +
                 sLineNumber +

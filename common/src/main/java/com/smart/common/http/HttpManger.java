@@ -32,12 +32,14 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import okio.BufferedSink;
 
 public class HttpManger {
-
+    public static final MediaType MEDIA_TYPE_MARKDOWN
+            = MediaType.parse("application/json; charset=utf-8");
     private static OkHttpClient mOkHttpClient;
     private Handler mMainHandler;
-
+    private String token;
     private HttpManger() {
         initOkHttpClient();
         mMainHandler = new Handler(Looper.getMainLooper());
@@ -95,6 +97,14 @@ public class HttpManger {
         mOkHttpClient = builder.build();
     }
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
     /**
      * 获取okttpClient
      */
@@ -110,7 +120,7 @@ public class HttpManger {
      */
     public Response getSync(String url) throws IOException {
         final Request request = new Request.Builder()
-                .url(url)
+                .url(url).addHeader("Authorization",token)
                 .build();
         Call call = mOkHttpClient.newCall(request);
         return call.execute();
@@ -142,7 +152,7 @@ public class HttpManger {
      */
     public void getAsync(String url, final ResultCallback callback) {
         final Request request = new Request.Builder()
-                .url(url)
+                .url(url).addHeader("Authorization",token)
                 .build();
         deliveryResult(callback, request);
     }
@@ -157,6 +167,29 @@ public class HttpManger {
      */
     public Response postSync(String url, Param... params) throws IOException {
         Request request = buildPostRequest(url, params);
+        return mOkHttpClient.newCall(request).execute();
+    }
+
+    /**
+     * 同步的put请求
+     *
+     * @param url    url
+     * @param params post的参数
+     * @return response
+     */
+    public Response putSync(String url, Param... params) throws IOException {
+        Request request = buildPutRequest(url, params);
+        return mOkHttpClient.newCall(request).execute();
+    }
+    /**
+     * 同步的put请求
+     *
+     * @param url    url
+     * @param params post的参数
+     * @return response
+     */
+    public Response putSync(String url, String params) throws IOException {
+        Request request = buildPutRequest(url, params);
         return mOkHttpClient.newCall(request).execute();
     }
 
@@ -194,6 +227,19 @@ public class HttpManger {
      *
      * @param url      url
      * @param callback callback
+     * @String params   请求参数
+     */
+    public void postAsync(String url, final ResultCallback callback, String params) {
+//        Param[] paramsArr = map2Params(params);
+        Request request = buildPostRequest(url, params);
+        deliveryResult(callback, request);
+    }
+
+    /**
+     * 异步的post请求
+     *
+     * @param url      url
+     * @param callback callback
      * @param params   请求参数
      */
     public void postAsync(String url, final ResultCallback callback, Map<String, String> params) {
@@ -201,6 +247,61 @@ public class HttpManger {
         Request request = buildPostRequest(url, paramsArr);
         deliveryResult(callback, request);
     }
+
+    /**
+     * 同步的put请求
+     *
+     * @param url    url
+     * @param params post的参数
+     * @return 字符串
+     */
+    public String putSyncString(String url, Param... params) throws IOException {
+        Response response = putSync(url, params);
+        ResponseBody body = response.body();
+        if (body != null) {
+            return body.string();
+        }
+        return null;
+    }
+
+    /**
+     * 同步的put请求
+     *
+     * @param url    url
+     * @param params post的参数
+     * @return 字符串
+     */
+    public String putSyncString(String url, String params) throws IOException {
+        Response response = putSync(url, params);
+        ResponseBody body = response.body();
+        if (body != null) {
+            return body.string();
+        }
+        return null;
+    }
+
+    /**
+     * 异步的put请求方法
+     * @param url
+     * @param callback
+     * @param params
+     */
+    public void putAsync(String url,final ResultCallback callback,Param... params){
+        Request request = buildPutRequest(url,params);
+        deliveryResult(callback, request);
+    }
+
+    /**
+     * 异步的put请求方法
+     * @param url
+     * @param callback
+     * @param params
+     */
+    public void putAsync(String url,final ResultCallback callback,String params){
+        Request request = buildPutRequest(url,params);
+        deliveryResult(callback, request);
+    }
+
 
     /**
      * 同步 基于post的文件上传
@@ -299,7 +400,7 @@ public class HttpManger {
      */
     public void downloadAsync(final String url, final String destFileDir, final ResultCallback callback) {
         final Request request = new Request.Builder()
-                .url(url)
+                .url(url).addHeader("Authorization",token)
                 .build();
         final Call call = mOkHttpClient.newCall(request);
         call.enqueue(new Callback() {
@@ -379,7 +480,7 @@ public class HttpManger {
         }
         RequestBody requestBody = builder.build();
         return new Request.Builder()
-                .url(url)
+                .url(url).addHeader("Authorization",token)
                 .post(requestBody)
                 .build();
     }
@@ -515,7 +616,59 @@ public class HttpManger {
         }
         RequestBody requestBody = builder.build();
         return new Request.Builder()
-                .url(url)
+                .url(url).addHeader("Authorization",token)
+                .post(requestBody)
+                .build();
+    }
+
+
+    /**
+     * 创建put请求
+     *
+     * @param url    url
+     * @String params 参数
+     * @return 创建号好的post请求
+     */
+    private Request buildPutRequest(String url, String params) {
+        RequestBody requestBody = RequestBody.create(MEDIA_TYPE_MARKDOWN,params);
+        return new Request.Builder()
+                .url(url).addHeader("Authorization",token)
+                .put(requestBody)
+                .build();
+    }
+
+    /**
+     * 创建post请求
+     *
+     * @param url    url
+     * @param params 参数
+     * @return 创建号好的post请求
+     */
+    private Request buildPutRequest(String url, Param... params) {
+        if (params == null) {
+            params = new Param[0];
+        }
+        FormBody.Builder builder = new FormBody.Builder();
+        for (Param param : params) {
+            builder.add(param.key, param.value);
+        }
+        RequestBody requestBody = builder.build();
+        return new Request.Builder()
+                .url(url).addHeader("Authorization",token)
+                .put(requestBody)
+                .build();
+    }
+    /**
+     * 创建post请求
+     *
+     * @param url    url
+     * @String params 参数
+     * @return 创建号好的post请求
+     */
+    private Request buildPostRequest(String url, String params) {
+        RequestBody requestBody = RequestBody.create(MEDIA_TYPE_MARKDOWN,params);
+        return new Request.Builder()
+                .url(url).addHeader("Authorization",token)
                 .post(requestBody)
                 .build();
     }

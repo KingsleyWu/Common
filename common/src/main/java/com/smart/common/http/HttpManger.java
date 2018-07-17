@@ -32,7 +32,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import okio.BufferedSink;
 
 public class HttpManger {
     public static final MediaType MEDIA_TYPE_MARKDOWN
@@ -119,9 +118,13 @@ public class HttpManger {
      * @return Response
      */
     public Response getSync(String url) throws IOException {
-        final Request request = new Request.Builder()
-                .url(url).addHeader("Authorization",token)
-                .build();
+        final Request request;
+        Request.Builder builder = new Request.Builder()
+                .url(url);
+        if (token != null){
+            builder.addHeader("Authorization",token);
+        }
+        request = builder.build();
         Call call = mOkHttpClient.newCall(request);
         return call.execute();
     }
@@ -151,9 +154,13 @@ public class HttpManger {
      * @param callback callback
      */
     public void getAsync(String url, final ResultCallback callback) {
-        final Request request = new Request.Builder()
-                .url(url).addHeader("Authorization",token)
-                .build();
+        final Request request;
+        Request.Builder builder = new Request.Builder()
+                .url(url);
+        if (token != null){
+            builder.addHeader("Authorization",token);
+        }
+        request = builder.build();
         deliveryResult(callback, request);
     }
 
@@ -399,9 +406,13 @@ public class HttpManger {
      * @param callback    callback
      */
     public void downloadAsync(final String url, final String destFileDir, final ResultCallback callback) {
-        final Request request = new Request.Builder()
-                .url(url).addHeader("Authorization",token)
-                .build();
+        final Request request;
+        Request.Builder builder = new Request.Builder()
+                .url(url);
+        if (token != null){
+            builder.addHeader("Authorization",token);
+        }
+        request = builder.build();
         final Call call = mOkHttpClient.newCall(request);
         call.enqueue(new Callback() {
             @Override
@@ -461,9 +472,9 @@ public class HttpManger {
     private Request buildMultipartFormRequest(String url, File[] files,
                                               String[] fileKeys, Param[] params) {
         params = validateParam(params);
-        MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+        MultipartBody.Builder bodybBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         for (Param param : params) {
-            builder.addPart(Headers.of("Content-Disposition", "form-data; name=\"" + param.key + "\""),
+            bodybBuilder.addPart(Headers.of("Content-Disposition", "form-data; name=\"" + param.key + "\""),
                     RequestBody.create(null, param.value));
         }
         if (files != null) {
@@ -473,16 +484,20 @@ public class HttpManger {
                 String fileName = file.getName();
                 fileBody = RequestBody.create(MediaType.parse(guessMimeType(fileName)), file);
                 //TODO 根据文件名设置contentType
-                builder.addPart(Headers.of("Content-Disposition",
+                bodybBuilder.addPart(Headers.of("Content-Disposition",
                         "form-data; name=\"" + fileKeys[i] + "\"; filename=\"" + fileName + "\""),
                         fileBody);
             }
         }
-        RequestBody requestBody = builder.build();
-        return new Request.Builder()
-                .url(url).addHeader("Authorization",token)
-                .post(requestBody)
-                .build();
+        RequestBody requestBody = bodybBuilder.build();
+        final Request request;
+        Request.Builder builder = new Request.Builder()
+                .url(url);
+        if (token != null){
+            builder.addHeader("Authorization",token);
+        }
+        request = builder.post(requestBody).build();
+        return request;
     }
 
     /**
@@ -610,15 +625,19 @@ public class HttpManger {
         if (params == null) {
             params = new Param[0];
         }
-        FormBody.Builder builder = new FormBody.Builder();
+        FormBody.Builder formBodyBuilder = new FormBody.Builder();
         for (Param param : params) {
-            builder.add(param.key, param.value);
+            formBodyBuilder.add(param.key, param.value);
         }
-        RequestBody requestBody = builder.build();
-        return new Request.Builder()
-                .url(url).addHeader("Authorization",token)
-                .post(requestBody)
-                .build();
+        RequestBody requestBody = formBodyBuilder.build();
+        final Request request;
+        Request.Builder builder = new Request.Builder()
+                .url(url);
+        if (token != null){
+            builder.addHeader("Authorization",token);
+        }
+        request = builder.post(requestBody).build();
+        return request;
     }
 
 
@@ -631,10 +650,14 @@ public class HttpManger {
      */
     private Request buildPutRequest(String url, String params) {
         RequestBody requestBody = RequestBody.create(MEDIA_TYPE_MARKDOWN,params);
-        return new Request.Builder()
-                .url(url).addHeader("Authorization",token)
-                .put(requestBody)
-                .build();
+        final Request request;
+        Request.Builder builder = new Request.Builder()
+                .url(url);
+        if (token != null){
+            builder.addHeader("Authorization",token);
+        }
+        request = builder.put(requestBody).build();
+        return request;
     }
 
     /**
@@ -648,15 +671,19 @@ public class HttpManger {
         if (params == null) {
             params = new Param[0];
         }
-        FormBody.Builder builder = new FormBody.Builder();
+        FormBody.Builder formBodyBuilder = new FormBody.Builder();
         for (Param param : params) {
-            builder.add(param.key, param.value);
+            formBodyBuilder.add(param.key, param.value);
         }
-        RequestBody requestBody = builder.build();
-        return new Request.Builder()
-                .url(url).addHeader("Authorization",token)
-                .put(requestBody)
-                .build();
+        RequestBody requestBody = formBodyBuilder.build();
+        final Request request;
+        Request.Builder builder = new Request.Builder()
+                .url(url);
+        if (token != null){
+            builder.addHeader("Authorization",token);
+        }
+        request = builder.put(requestBody).build();
+        return request;
     }
     /**
      * 创建post请求
@@ -667,10 +694,14 @@ public class HttpManger {
      */
     private Request buildPostRequest(String url, String params) {
         RequestBody requestBody = RequestBody.create(MEDIA_TYPE_MARKDOWN,params);
-        return new Request.Builder()
-                .url(url).addHeader("Authorization",token)
-                .post(requestBody)
-                .build();
+        final Request request;
+        Request.Builder builder = new Request.Builder()
+                .url(url);
+        if (token != null){
+            builder.addHeader("Authorization",token);
+        }
+        request = builder.post(requestBody).build();
+        return request;
     }
 
     /**

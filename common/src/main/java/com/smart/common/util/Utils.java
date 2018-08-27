@@ -7,10 +7,13 @@ import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
@@ -19,15 +22,32 @@ import android.text.format.DateFormat;
 import com.smart.common.interfaces.SetTimeCallback;
 import com.smart.common.net.SntpClient;
 
+import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DecimalFormat;
 
 public class Utils {
+
+    private static Context sApplication;
+
+    /**
+     * 初始化 utils.
+     *
+     * @param context context
+     */
+    public static void init(@NonNull Context context) {
+        sApplication = context.getApplicationContext();
+        SharedPreferenceUtil.init(context);
+        SmartLog.startLog(context);
+    }
 
     /**
      * 时间服务器的域名
@@ -311,18 +331,42 @@ public class Utils {
         });
     }
 
-
-    private static Context sApplication;
-
     /**
-     * 初始化 utils.
-     *
-     * @param context context
+     * 用于判断网络连接是否可用
+     * @return 可用则为true 否则为false
      */
-    public static void init(@NonNull Context context) {
-        Utils.sApplication = context.getApplicationContext();
-        SharedPreferenceUtil.init(context);
-        SmartLog.startLog(context);
+    public static boolean ping() {
+        String result = null;
+        try {
+            // ping 的地址，可以换成任何一种可靠的外网
+            String ip = "www.baidu.com";
+            // ping网址3次
+            Process p = Runtime.getRuntime().exec("ping -c 3 -w 100 " + ip);
+            // 读取ping的内容，可以不加
+            InputStream input = p.getInputStream();
+            BufferedReader in = new BufferedReader(new InputStreamReader(input));
+            StringBuilder stringBuffer = new StringBuilder();
+            String content;
+            while ((content = in.readLine()) != null) {
+                stringBuffer.append(content);
+            }
+            DebugUtil.d("------ping-----", "result content : " + stringBuffer.toString());
+            // ping的状态
+            int status = p.waitFor();
+            if (status == 0) {
+                result = "success";
+                return true;
+            } else {
+                result = "failed";
+            }
+        } catch (IOException e) {
+            result = "IOException";
+        } catch (InterruptedException e) {
+            result = "InterruptedException";
+        } finally {
+            DebugUtil.d("----result---", "result = " + result);
+        }
+        return false;
     }
 
     /**
@@ -401,6 +445,71 @@ public class Utils {
             throw new IllegalArgumentException("u should init first");
         }
 
+    }
+
+    /**
+     * 获取板卡序列号
+     * @return 板卡序列号，异常返回unknown
+     */
+    public static String getSn() {
+        return Build.SERIAL;
+    }
+    /**
+     * 获取固件版本号
+     * @return 固件版本号，异常返回unknown
+     */
+    public static String getRomId() {
+        return Build.DISPLAY;
+    }
+    /**
+     * 获取launcher渠道号
+     * @param context 应用的上下文
+     * @return launcher渠道号，异常返回""
+     */
+    public static String getChannel(Context context) {
+        String channel = "";
+        // 依次从生产环境、测试环境、开发环境中获取
+        String packageName = "com.joywe.launcher";
+        try {
+            ApplicationInfo appInfo =
+                    context.getPackageManager().getApplicationInfo(packageName, PackageManager.GET_META_DATA);
+            if (appInfo != null && appInfo.metaData != null && appInfo.metaData.containsKey("CHANNEL")) {
+                channel = appInfo.metaData.getString("CHANNEL");
+                DebugUtil.d("get channel from app: " + packageName);
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return channel;
+    }
+    /**
+     * 获取wifi的mac地址
+     * @return wifi的mac地址，异常返回""
+     */
+    public static String getWifiMac() {
+        String mac = "";
+        InputStreamReader inputReader = null;
+        LineNumberReader lineReader = null;
+        try {
+            Process process = Runtime.getRuntime().exec(
+                    "cat /sys/class/net/wlan0/address ");
+            inputReader = new InputStreamReader(process.getInputStream());
+            lineReader = new LineNumberReader(inputReader);
+            String str = "";
+            for (; null != str; ) {
+                str = lineReader.readLine();
+                if (str != null) {
+                    mac = str.trim();
+                    break;
+                }
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            Utils.close(lineReader);
+            Utils.close(inputReader);
+        }
+        return mac;
     }
 
 }

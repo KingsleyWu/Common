@@ -40,11 +40,11 @@ public class DebugUtil {
      * @param message 日志内容
      */
     public static void d(String message) {
+        getsMethodNames(new Throwable().getStackTrace());
         if (sOpenDebug) {
-            getsMethodNames(new Throwable().getStackTrace());
             Log.d(sClassName, createLog(message));
-            SmartLog.logInfo(sClassName, createLog(message));
         }
+        SmartLog.logInfo(sClassName, createLog(message));
     }
 
     /**
@@ -54,10 +54,24 @@ public class DebugUtil {
      * @param message 日志内容
      */
     public static void d(String tag, String message) {
+        getsMethodNames(new Throwable().getStackTrace());
+        if (sOpenDebug) {
+            Log.d(tag, createLog(message));
+        }
+        SmartLog.logInfo(sClassName, createLog(message));
+    }
+
+
+    /**
+     * 打印debug信息 无SmartLog
+     *
+     * @param tag     tag
+     * @param message 日志内容
+     */
+    public static void v(String tag, String message) {
         if (sOpenDebug) {
             getsMethodNames(new Throwable().getStackTrace());
-            Log.d(tag, createLog(message));
-            SmartLog.logInfo(sClassName, createLog(message));
+            Log.v(tag, createLog(message));
         }
     }
 
@@ -67,14 +81,32 @@ public class DebugUtil {
      * @param object 日志内容
      */
     public static void d(Object object) {
+        getsMethodNames(new Throwable().getStackTrace());
+        if (!DataFormat.isEmpty(object)) {
+            if (sOpenDebug) {
+                Log.d(sClassName, createLog(object.toString()));
+            }
+            SmartLog.logInfo(sClassName, createLog(object.toString()));
+        } else {
+            if (sOpenDebug) {
+                Log.d(sClassName, createLog(object));
+            }
+            SmartLog.logInfo(sClassName, createLog(object));
+        }
+    }
+
+    /**
+     * 用类名作为tag打印debug日志
+     *
+     * @param object 日志内容
+     */
+    public static void v(Object object) {
         if (sOpenDebug) {
             getsMethodNames(new Throwable().getStackTrace());
             if (!DataFormat.isEmpty(object)) {
-                Log.d(sClassName, createLog(object.toString()));
-                SmartLog.logInfo(sClassName, createLog(object.toString()));
+                Log.v(sClassName, createLog(object.toString()));
             } else {
-                Log.d(sClassName, createLog(object));
-                SmartLog.logInfo(sClassName, createLog(object));
+                Log.v(sClassName, createLog(object));
             }
         }
     }
@@ -85,11 +117,11 @@ public class DebugUtil {
      * @param message 日志内容
      */
     public static void i(String message) {
+        getsMethodNames(new Throwable().getStackTrace());
         if (sOpenDebug) {
-            getsMethodNames(new Throwable().getStackTrace());
             Log.i(sClassName, createLog(message));
-            SmartLog.logInfo(sClassName, createLog(message));
         }
+        SmartLog.logInfo(sClassName, createLog(message));
     }
 
     /**
@@ -99,11 +131,11 @@ public class DebugUtil {
      * @param message 日志内容
      */
     public static void i(String tag, String message) {
+        getsMethodNames(new Throwable().getStackTrace());
         if (sOpenDebug) {
-            getsMethodNames(new Throwable().getStackTrace());
             Log.i(tag, createLog(message));
-            SmartLog.logInfo(sClassName, createLog(message));
         }
+        SmartLog.logInfo(sClassName, createLog(message));
     }
 
     /**
@@ -112,16 +144,19 @@ public class DebugUtil {
      * @param object 日志内容
      */
     public static void i(Object object) {
-        if (sOpenDebug) {
-            if (!DataFormat.isEmpty(object)) {
-                getsMethodNames(new Throwable().getStackTrace());
+        getsMethodNames(new Throwable().getStackTrace());
+        if (!DataFormat.isEmpty(object)) {
+            if (sOpenDebug) {
                 Log.i(sClassName, createLog(object.toString()));
-                SmartLog.logInfo(sClassName, createLog(object.toString()));
-            } else {
-                Log.i(sClassName, createLog(object));
-                SmartLog.logInfo(sClassName, createLog(object));
             }
+            SmartLog.logInfo(sClassName, createLog(object.toString()));
+        } else {
+            if (sOpenDebug) {
+                Log.i(sClassName, createLog(object));
+            }
+            SmartLog.logInfo(sClassName, createLog(object));
         }
+
     }
 
     /**
@@ -130,11 +165,11 @@ public class DebugUtil {
      * @param message 日志内容
      */
     public static void e(String message) {
+        getsMethodNames(new Throwable().getStackTrace());
         if (sOpenDebug) {
-            getsMethodNames(new Throwable().getStackTrace());
             Log.e(sClassName, createLog(message));
-            SmartLog.logError(sClassName, createLog(message));
         }
+        SmartLog.logError(sClassName, createLog(message));
     }
 
     /**
@@ -144,11 +179,11 @@ public class DebugUtil {
      * @param message 日志内容
      */
     public static void e(String tag, String message) {
+        getsMethodNames(new Throwable().getStackTrace());
         if (sOpenDebug) {
-            getsMethodNames(new Throwable().getStackTrace());
             Log.e(tag, createLog(message));
-            SmartLog.logError(sClassName, createLog(message));
         }
+        SmartLog.logError(sClassName, createLog(message));
     }
 
     /**
@@ -157,15 +192,17 @@ public class DebugUtil {
      * @param object 日志内容
      */
     public static void e(Object object) {
-        if (sOpenDebug) {
-            getsMethodNames(new Throwable().getStackTrace());
-            if (!DataFormat.isEmpty(object)) {
+        getsMethodNames(new Throwable().getStackTrace());
+        if (!DataFormat.isEmpty(object)) {
+            if (sOpenDebug) {
                 Log.e(sClassName, createLog(object.toString()));
-                SmartLog.logError(sClassName, createLog(object.toString()));
-            } else {
-                Log.e(sClassName, createLog(object));
-                SmartLog.logError(sClassName, createLog(object));
             }
+            SmartLog.logError(sClassName, createLog(object.toString()));
+        } else {
+            if (sOpenDebug) {
+                Log.e(sClassName, createLog(object));
+            }
+            SmartLog.logError(sClassName, createLog(object));
         }
     }
 

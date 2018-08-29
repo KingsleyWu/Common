@@ -42,10 +42,6 @@ public class HttpManger {
     private static OkHttpClient mOkHttpClient;
     private Handler mMainHandler;
     private String token;
-    private String mSN;
-    private String mRomId;
-    private String mChannel;
-    private String mMAC;
 
     private HttpManger() {
         initOkHttpClient();
@@ -107,10 +103,11 @@ public class HttpManger {
 
     /**
      * 设置ConnectTimeout
+     *
      * @param timeout timeout 时间单位为秒
      * @return HttpManger
      */
-    public HttpManger setConnectTimeout(int timeout){
+    public HttpManger setConnectTimeout(int timeout) {
         mOkHttpClient = mOkHttpClient.newBuilder()
                 .connectTimeout(timeout, TimeUnit.SECONDS)
                 .build();
@@ -119,10 +116,11 @@ public class HttpManger {
 
     /**
      * 设置ReadTimeout
+     *
      * @param timeout timeout 时间单位为秒
      * @return HttpManger
      */
-    public HttpManger setReadTimeout(int timeout){
+    public HttpManger setReadTimeout(int timeout) {
         mOkHttpClient = mOkHttpClient.newBuilder()
                 .readTimeout(timeout, TimeUnit.SECONDS)
                 .build();
@@ -131,10 +129,11 @@ public class HttpManger {
 
     /**
      * 设置WriteTimeout
+     *
      * @param timeout timeout 时间单位为秒
      * @return HttpManger
      */
-    public HttpManger setWriteTimeout(int timeout){
+    public HttpManger setWriteTimeout(int timeout) {
         mOkHttpClient = mOkHttpClient.newBuilder()
                 .writeTimeout(timeout, TimeUnit.SECONDS)
                 .build();
@@ -143,6 +142,7 @@ public class HttpManger {
 
     /**
      * 获取token
+     *
      * @return token
      */
     public String getToken() {
@@ -151,83 +151,12 @@ public class HttpManger {
 
     /**
      * 设置token
+     *
      * @param token token
      * @return HttpManger
      */
     public HttpManger setToken(String token) {
         this.token = token;
-        return this;
-    }
-
-    /**
-     * 获取SN
-     * @return SN
-     */
-    public String getSN() {
-        return mSN;
-    }
-
-    /**
-     * 获取SN
-     * @param sn sn
-     * @return HttpManger
-     */
-    public HttpManger setSN(String sn) {
-        this.mSN = sn;
-        return this;
-    }
-
-    /**
-     * 获取 romId
-     * @return romId
-     */
-    public String getRomId() {
-        return mRomId;
-    }
-
-    /**
-     * 获取rom id
-     * @param romId romId
-     * @return HttpManger
-     */
-    public HttpManger setRomId(String romId) {
-        this.mRomId = romId;
-        return this;
-    }
-
-    /**
-     * 获取channel
-     * @return channel
-     */
-    public String getChannel() {
-        return mChannel;
-    }
-
-    /**
-     * 设置 channel
-     * @param channel channel
-     * @return HttpManger
-     */
-    public HttpManger setChannel(String channel) {
-        this.mChannel = channel;
-        return this;
-    }
-
-    /**
-     * 获取MAC
-     * @return MAC
-     */
-    public String getMAC() {
-        return mMAC;
-    }
-
-    /**
-     * 设置 MAC
-     * @param mac mac
-     * @return HttpManger
-     */
-    public HttpManger setMAC(String mac) {
-        this.mMAC = mac;
         return this;
     }
 
@@ -244,23 +173,23 @@ public class HttpManger {
      * @param url url
      * @return Response
      */
-    public Response getSync(String url) throws IOException {
-       return getSync(url,getTokenParam());
+    public Response getSync(String url) throws Exception {
+        return getSync(url, getTokenParam());
     }
 
     /**
      * 同步的Get请求
      *
-     * @param url url
+     * @param url     url
      * @param headers header
      * @return Response
      */
-    public Response getSync(String url, Param ... headers) throws IOException {
+    public Response getSync(String url, Param... headers) throws Exception {
         Request.Builder builder = new Request.Builder()
                 .url(url);
         for (Param header : headers) {
             if (!DataFormat.isEmpty(header)) {
-                builder.addHeader(header.key,header.value);
+                builder.addHeader(header.key, header.value);
             }
         }
         return execute(builder.build());
@@ -268,67 +197,51 @@ public class HttpManger {
 
     /**
      * 执行请求
+     *
      * @param request request
      * @return response
      * @throws IOException e
      */
-    public Response execute(Request request) throws IOException{
+    public Response execute(Request request) throws Exception {
         request = getReRequest(request);
         return mOkHttpClient.newCall(request).execute();
     }
 
     /**
      * 重写request
+     *
      * @param request request
      * @return request
      */
-    private Request getReRequest(Request request) {
-        try {
-            Request.Builder builder = new Request.Builder();
-            builder.headers(request.headers())
-                    .url(request.url())
-                    .method(request.method(),request.body())
-                    .tag(request.tag());
-            mSN = Utils.getSn();
-            if (!DataFormat.isEmpty(mSN)){
-                builder.addHeader("sn",mSN);
-            }
-            mChannel = Utils.getChannel(Utils.getApplication());
-            if (!DataFormat.isEmpty(mChannel)){
-                builder.addHeader("channel",mChannel);
-            }
-            mRomId = Utils.getRomId();
-            if (!DataFormat.isEmpty(mRomId)){
-                builder.addHeader("rom_id",mRomId);
-            }
-            mMAC = Utils.getWifiMac();
-            if (!DataFormat.isEmpty(mMAC)){
-                builder.addHeader("mac",mMAC);
-            }
-            request = builder.build();
-        }catch (Exception e){
-            e.printStackTrace();
-            DebugUtil.d(e.getMessage());
-        }
-        return request;
+    private Request getReRequest(Request request) throws Exception {
+        Request.Builder builder = new Request.Builder();
+        builder.headers(request.headers())
+                .url(request.url())
+                .method(request.method(), request.body())
+                .tag(request.tag());
+        builder.addHeader("sn", Utils.getSn());
+        builder.addHeader("channel", Utils.getChannel(Utils.getApplication()));
+        builder.addHeader("rom_id", Utils.getRomId());
+        builder.addHeader("mac", Utils.getWifiMac());
+        return builder.build();
     }
 
     /**
      * 同步的Get请求
      *
-     * @param url url
+     * @param url     url
      * @param headers header
      * @return 字符串
      */
-    public String getSyncString(String url,Param ... headers) throws IOException {
-        Response execute = getSync(url,headers);
+    public String getSyncString(String url, Param... headers) throws Exception {
+        Response execute = getSync(url, headers);
         if (execute.isSuccessful()) {
             ResponseBody body = execute.body();
             if (body != null) {
                 return body.string();
             }
         }
-        return null;
+        return "";
     }
 
     /**
@@ -337,8 +250,8 @@ public class HttpManger {
      * @param url url
      * @return 字符串
      */
-    public String getSyncString(String url) throws IOException {
-        return getSyncString(url,getTokenParam());
+    public String getSyncString(String url) throws Exception {
+        return getSyncString(url, getTokenParam());
     }
 
 
@@ -349,7 +262,7 @@ public class HttpManger {
      * @param callback callback
      */
     public void getAsync(String url, final ResultCallback callback) {
-        getAsync(url,callback,getTokenParam());
+        getAsync(url, callback, getTokenParam());
     }
 
     /**
@@ -357,16 +270,15 @@ public class HttpManger {
      *
      * @param url      url
      * @param callback callback
-     * @param headers headers
-     *
+     * @param headers  headers
      */
-    public void getAsync(String url,ResultCallback callback,Param... headers) {
+    public void getAsync(String url, ResultCallback callback, Param... headers) {
         final Request request;
         Request.Builder builder = new Request.Builder()
                 .url(url);
         for (Param header : headers) {
             if (!DataFormat.isEmpty(header)) {
-                builder.addHeader(header.key,header.value);
+                builder.addHeader(header.key, header.value);
             }
         }
         request = builder.build();
@@ -381,7 +293,7 @@ public class HttpManger {
      * @param params post的参数
      * @return response
      */
-    public Response postSync(String url, Param... params) throws IOException {
+    public Response postSync(String url, Param... params) throws Exception {
         return execute(buildPostRequest(url, params));
     }
 
@@ -392,8 +304,8 @@ public class HttpManger {
      * @param params post的参数
      * @return response
      */
-    public Response postSync(String url, Param[] params,Param... headers) throws IOException {
-        return execute(buildPostRequest(url, params,headers));
+    public Response postSync(String url, Param[] params, Param... headers) throws Exception {
+        return execute(buildPostRequest(url, params, headers));
     }
 
     /**
@@ -403,7 +315,7 @@ public class HttpManger {
      * @param params post的参数
      * @return response
      */
-    public Response putSync(String url, Param... params) throws IOException {
+    public Response putSync(String url, Param... params) throws Exception {
         return execute(buildPutRequest(url, params));
     }
 
@@ -414,8 +326,8 @@ public class HttpManger {
      * @param params post的参数
      * @return response
      */
-    public Response putSync(String url, Param[] params,Param... headers) throws IOException {
-        return execute(buildPutRequest(url, params,headers));
+    public Response putSync(String url, Param[] params, Param... headers) throws Exception {
+        return execute(buildPutRequest(url, params, headers));
     }
 
     /**
@@ -425,9 +337,10 @@ public class HttpManger {
      * @param params post的参数
      * @return response
      */
-    public Response putSync(String url, String params) throws IOException {
+    public Response putSync(String url, String params) throws Exception {
         return execute(buildPutRequest(url, params));
     }
+
     /**
      * 同步的put请求
      *
@@ -435,8 +348,8 @@ public class HttpManger {
      * @param params post的参数
      * @return response
      */
-    public Response putSync(String url, String params,Param... headers) throws IOException {
-        return execute(buildPutRequest(url, params,headers));
+    public Response putSync(String url, String params, Param... headers) throws Exception {
+        return execute(buildPutRequest(url, params, headers));
     }
 
 
@@ -447,13 +360,13 @@ public class HttpManger {
      * @param params post的参数
      * @return 字符串
      */
-    public String postSyncString(String url, Param... params) throws IOException {
+    public String postSyncString(String url, Param... params) throws Exception {
         Response response = postSync(url, params);
         ResponseBody body = response.body();
         if (body != null) {
             return body.string();
         }
-        return null;
+        return "";
     }
 
     /**
@@ -463,13 +376,13 @@ public class HttpManger {
      * @param params post的参数
      * @return 字符串
      */
-    public String postSyncString(String url, Param[] params,Param... headers) throws IOException {
-        Response response = postSync(url, params,headers);
+    public String postSyncString(String url, Param[] params, Param... headers) throws Exception {
+        Response response = postSync(url, params, headers);
         ResponseBody body = response.body();
         if (body != null) {
             return body.string();
         }
-        return null;
+        return "";
     }
 
     /**
@@ -492,8 +405,8 @@ public class HttpManger {
      * @param params   请求参数
      * @param headers  请求头参数
      */
-    public void postAsync(String url, final ResultCallback callback, Param[] params,Param... headers) {
-        Request request = buildPostRequest(url, params,headers);
+    public void postAsync(String url, final ResultCallback callback, Param[] params, Param... headers) {
+        Request request = buildPostRequest(url, params, headers);
         deliveryResult(callback, request);
     }
 
@@ -517,8 +430,8 @@ public class HttpManger {
      * @param params   请求参数
      * @param headers  请求头参数
      */
-    public void postAsync(String url, final ResultCallback callback, String params,Param... headers) {
-        Request request = buildPostRequest(url, params,headers);
+    public void postAsync(String url, final ResultCallback callback, String params, Param... headers) {
+        Request request = buildPostRequest(url, params, headers);
         deliveryResult(callback, request);
     }
 
@@ -543,9 +456,9 @@ public class HttpManger {
      * @param params   请求参数
      * @param headers  请求头参数
      */
-    public void postAsync(String url, final ResultCallback callback, Map<String, String> params,Param... headers) {
+    public void postAsync(String url, final ResultCallback callback, Map<String, String> params, Param... headers) {
         Param[] paramsArr = map2Params(params);
-        Request request = buildPostRequest(url, paramsArr,headers);
+        Request request = buildPostRequest(url, paramsArr, headers);
         deliveryResult(callback, request);
     }
 
@@ -556,7 +469,39 @@ public class HttpManger {
      * @param params post的参数
      * @return 字符串
      */
-    public String putSyncString(String url, Param... params) throws IOException {
+    public String putSyncString(String url, Param... params) throws Exception {
+        Response response = putSync(url, params);
+        ResponseBody body = response.body();
+        if (body != null) {
+            return body.string();
+        }
+        return "";
+    }
+
+    /**
+     * 同步的put请求
+     *
+     * @param url    url
+     * @param params post的参数
+     * @return 字符串
+     */
+    public String putSyncString(String url, Param[] params, Param... headers) throws Exception {
+        Response response = putSync(url, params, headers);
+        ResponseBody body = response.body();
+        if (body != null) {
+            return body.string();
+        }
+        return "";
+    }
+
+    /**
+     * 同步的put请求
+     *
+     * @param url    url
+     * @param params post的参数
+     * @return 字符串
+     */
+    public String putSyncString(String url, String params) throws Exception {
         Response response = putSync(url, params);
         ResponseBody body = response.body();
         if (body != null) {
@@ -572,76 +517,45 @@ public class HttpManger {
      * @param params post的参数
      * @return 字符串
      */
-    public String putSyncString(String url, Param[] params,Param... headers) throws IOException {
-        Response response = putSync(url, params,headers);
+    public String putSyncString(String url, String params, Param... headers) throws Exception {
+        Response response = putSync(url, params, headers);
         ResponseBody body = response.body();
         if (body != null) {
             return body.string();
         }
-        return null;
-    }
-
-    /**
-     * 同步的put请求
-     *
-     * @param url    url
-     * @param params post的参数
-     * @return 字符串
-     */
-    public String putSyncString(String url, String params) throws IOException {
-        Response response = putSync(url, params);
-        ResponseBody body = response.body();
-        if (body != null) {
-            return body.string();
-        }
-        return null;
-    }
-
-    /**
-     * 同步的put请求
-     *
-     * @param url    url
-     * @param params post的参数
-     * @return 字符串
-     */
-    public String putSyncString(String url, String params,Param... headers) throws IOException {
-        Response response = putSync(url, params,headers);
-        ResponseBody body = response.body();
-        if (body != null) {
-            return body.string();
-        }
-        return null;
+        return "";
     }
 
     /**
      * 异步的put请求方法
      *
-     * @param url url
+     * @param url      url
      * @param callback callback
-     * @param params params
+     * @param params   params
      */
     public void putAsync(String url, final ResultCallback callback, Param... params) {
         Request request = buildPutRequest(url, params);
         deliveryResult(callback, request);
     }
+
     /**
      * 异步的put请求方法
      *
-     * @param url url
+     * @param url      url
      * @param callback callback
-     * @param params params
+     * @param params   params
      */
-    public void putAsync(String url, final ResultCallback callback, Param[] params,Param... headers) {
-        Request request = buildPutRequest(url, params,headers);
+    public void putAsync(String url, final ResultCallback callback, Param[] params, Param... headers) {
+        Request request = buildPutRequest(url, params, headers);
         deliveryResult(callback, request);
     }
 
     /**
      * 异步的put请求方法
      *
-     * @param url url
+     * @param url      url
      * @param callback callback
-     * @param params params
+     * @param params   params
      */
     public void putAsync(String url, final ResultCallback callback, String params) {
         Request request = buildPutRequest(url, params);
@@ -895,29 +809,33 @@ public class HttpManger {
      * @param request  request
      */
     private void deliveryResult(final ResultCallback callback, Request request) {
-        request = getReRequest(request);
-        mOkHttpClient.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                sendFailedStringCallback(e, callback);
-            }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                try {
-                    ResponseBody body = response.body();
-                    if (body != null) {
-                        final String string = body.string();
-                        sendSuccessResultCallback(string, callback);
-                    } else {
-                        sendFailedStringCallback(new IllegalArgumentException("ResponseBody is Empty !"), callback);
-                    }
-                } catch (IOException e) {
+        try {
+            request = getReRequest(request);
+            mOkHttpClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     sendFailedStringCallback(e, callback);
                 }
 
-            }
-        });
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    try {
+                        ResponseBody body = response.body();
+                        if (body != null) {
+                            final String string = body.string();
+                            sendSuccessResultCallback(string, callback);
+                        } else {
+                            sendFailedStringCallback(new IllegalArgumentException("ResponseBody is Empty !"), callback);
+                        }
+                    } catch (IOException e) {
+                        sendFailedStringCallback(e, callback);
+                    }
+
+                }
+            });
+        } catch (Exception e) {
+            sendFailedStringCallback(e, callback);
+        }
     }
 
     /**
@@ -962,11 +880,12 @@ public class HttpManger {
      * @return 创建号好的post请求
      */
     private Request buildPostRequest(String url, Param... params) {
-        return buildPostRequest(url, params,getTokenParam());
+        return buildPostRequest(url, params, getTokenParam());
     }
 
     /**
      * 获取token
+     *
      * @return token
      */
     @Nullable
@@ -983,12 +902,12 @@ public class HttpManger {
     /**
      * 创建post请求
      *
-     * @param url    url
-     * @param params 参数
+     * @param url     url
+     * @param params  参数
      * @param headers 请求头参数
      * @return 创建好的post请求
      */
-    private Request buildPostRequest(String url, Param[] params,Param... headers) {
+    private Request buildPostRequest(String url, Param[] params, Param... headers) {
         if (params == null) {
             params = new Param[0];
         }
@@ -1004,7 +923,7 @@ public class HttpManger {
                 .url(url);
         for (Param header : headers) {
             if (!DataFormat.isEmpty(header)) {
-                builder.addHeader(header.key,header.value);
+                builder.addHeader(header.key, header.value);
             }
         }
         request = builder.post(requestBody).build();
@@ -1020,7 +939,7 @@ public class HttpManger {
      * @return 创建好的put请求
      */
     private Request buildPutRequest(String url, String params) {
-        return buildPutRequest(url, params,getTokenParam());
+        return buildPutRequest(url, params, getTokenParam());
     }
 
     /**
@@ -1030,14 +949,14 @@ public class HttpManger {
      * @param params 参数
      * @return 创建好的post请求
      */
-    private Request buildPutRequest(String url, String params,Param... headers) {
+    private Request buildPutRequest(String url, String params, Param... headers) {
         RequestBody requestBody = RequestBody.create(MEDIA_TYPE_MARKDOWN, params);
         final Request request;
         Request.Builder builder = new Request.Builder()
                 .url(url);
         for (Param header : headers) {
             if (!DataFormat.isEmpty(header)) {
-                builder.addHeader(header.key,header.value);
+                builder.addHeader(header.key, header.value);
             }
         }
         request = builder.put(requestBody).build();
@@ -1051,7 +970,7 @@ public class HttpManger {
      * @param params 参数
      * @return 创建好的post请求
      */
-    private Request buildPutRequest(String url, Param[] params,Param... headers) {
+    private Request buildPutRequest(String url, Param[] params, Param... headers) {
         if (params == null) {
             params = new Param[0];
         }
@@ -1067,7 +986,7 @@ public class HttpManger {
                 .url(url);
         for (Param header : headers) {
             if (!DataFormat.isEmpty(header)) {
-                builder.addHeader(header.key,header.value);
+                builder.addHeader(header.key, header.value);
             }
         }
         request = builder.put(requestBody).build();
@@ -1082,35 +1001,35 @@ public class HttpManger {
      * @return 创建好的post请求
      */
     private Request buildPutRequest(String url, Param... params) {
-        return buildPutRequest(url, params,getTokenParam());
+        return buildPutRequest(url, params, getTokenParam());
     }
 
     /**
      * 创建post请求
      *
-     * @param url url
+     * @param url    url
      * @param params 参数
      * @return 创建好的post请求
      */
     private Request buildPostRequest(String url, String params) {
-        return buildPostRequest(url, params,getTokenParam());
+        return buildPostRequest(url, params, getTokenParam());
     }
 
     /**
      * 创建post请求
      *
-     * @param url url
+     * @param url    url
      * @param params 参数
      * @return 创建好的post请求
      */
-    private Request buildPostRequest(String url, String params,Param... headers) {
+    private Request buildPostRequest(String url, String params, Param... headers) {
         RequestBody requestBody = RequestBody.create(MEDIA_TYPE_MARKDOWN, params);
         final Request request;
         Request.Builder builder = new Request.Builder()
                 .url(url);
         for (Param header : headers) {
             if (!DataFormat.isEmpty(header)) {
-                builder.addHeader(header.key,header.value);
+                builder.addHeader(header.key, header.value);
             }
         }
         request = builder.post(requestBody).build();
